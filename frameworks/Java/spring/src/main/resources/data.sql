@@ -1,12 +1,12 @@
-insert into feedme.recipes VALUES ('CourgetteLinguine', 'Courgette Linguine', 'A beautiful Summery Courgette Linguine with fresh mint and lemon');
+insert into feedme.recipes VALUES ('CourgetteLinguine', 'Courgette Linguine', 'A beautiful Summery Courgette Linguine with fresh mint and lemon', 'italian');
 
-insert into feedme.recipe_ingredients values('CourgetteLinguine','Courgette','courgettes, cut into ribbons with a peeler', 2,'Units');
-insert into feedme.recipe_ingredients values('CourgetteLinguine','Onion','onions, thinly sliced',0.5,'Unit');
-insert into feedme.recipe_ingredients values('CourgetteLinguine','Lemon','lemon',1,'Unit');
+insert into feedme.recipe_ingredients values('CourgetteLinguine','Courgette','courgettes, cut into ribbons with a peeler', 2,'unit');
+insert into feedme.recipe_ingredients values('CourgetteLinguine','Onion','onions, thinly sliced',0.5,'unit');
+insert into feedme.recipe_ingredients values('CourgetteLinguine','Lemon','lemon',1,'unit');
 insert into feedme.recipe_ingredients values('CourgetteLinguine','Chilli Flakes','chilli flakes',2,'tspn');
-insert into feedme.recipe_ingredients values('CourgetteLinguine','Fresh Mint','fresh mint, cut coarsely',1,'Packet');
-insert into feedme.recipe_ingredients values('CourgetteLinguine','Linguine','linguine',300,'Grams');
-insert into feedme.recipe_ingredients values('CourgetteLinguine','Parmesan','grated parmesan cheese',50,'Grams');
+insert into feedme.recipe_ingredients values('CourgetteLinguine','Fresh Mint','fresh mint, cut coarsely',1,'packer');
+insert into feedme.recipe_ingredients values('CourgetteLinguine','Linguine','linguine',300,'gram');
+insert into feedme.recipe_ingredients values('CourgetteLinguine','Parmesan','grated parmesan cheese',50,'gram');
 insert into feedme.recipe_ingredients values('CourgetteLinguine','Olive Oil','olive oil',1,'tblspn');
 
 
@@ -19,16 +19,16 @@ insert into feedme.recipe_steps values('CourgetteLinguine', 6, 14, 'Serve on dis
 
 
 
-insert into feedme.recipes VALUES ('ChickenCourgettePie', 'Chicken and Courgette Pie', 'A hearty mediterranean alternative to the classic British chicken and leek pie');
+insert into feedme.recipes VALUES ('ChickenCourgettePie', 'Chicken and Courgette Pie', 'A hearty mediterranean alternative to the classic British chicken and leek pie', 'british');
 
-insert into feedme.recipe_ingredients values('ChickenCourgettePie','Courgette','courgettes, diced', 1,'Units');
-insert into feedme.recipe_ingredients values('ChickenCourgettePie','Aubergine','aubergine, diced', 1,'Units');
-insert into feedme.recipe_ingredients values('ChickenCourgettePie','RedOnion','red onions, thickly sliced',2,'Unit');
-insert into feedme.recipe_ingredients values('ChickenCourgettePie','Tomato','tin of peeled, plum tomatoes',1,'Unit');
-insert into feedme.recipe_ingredients values('ChickenCourgettePie','Chicken','chicken thighs, sliced',2,'Unit');
+insert into feedme.recipe_ingredients values('ChickenCourgettePie','Courgette','courgettes, diced', 1,'unit');
+insert into feedme.recipe_ingredients values('ChickenCourgettePie','Aubergine','aubergine, diced', 1,'unit');
+insert into feedme.recipe_ingredients values('ChickenCourgettePie','RedOnion','red onions, thickly sliced',2,'unit');
+insert into feedme.recipe_ingredients values('ChickenCourgettePie','Tomato','tin of peeled, plum tomatoes',1,'unit');
+insert into feedme.recipe_ingredients values('ChickenCourgettePie','Chicken','chicken thighs, sliced',2,'unit');
 insert into feedme.recipe_ingredients values('ChickenCourgettePie','Oregano','dried oregano',1,'tspn');
-insert into feedme.recipe_ingredients values('ChickenCourgettePie','BayLeaf','bay leaf',1,'Unit');
-insert into feedme.recipe_ingredients values('ChickenCourgettePie','PuffPastry','packets of puff-pastry',1,'Unit');
+insert into feedme.recipe_ingredients values('ChickenCourgettePie','BayLeaf','bay leaf',1,'unit');
+insert into feedme.recipe_ingredients values('ChickenCourgettePie','PuffPastry','packets of puff-pastry',1,'unit');
 insert into feedme.recipe_ingredients values('ChickenCourgettePie','Olive Oil','olive oil',1,'tblspn');
 
 

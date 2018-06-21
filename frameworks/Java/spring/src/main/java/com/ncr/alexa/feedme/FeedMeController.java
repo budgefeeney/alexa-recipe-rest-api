@@ -6,10 +6,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,9 +36,9 @@ public final class FeedMeController {
     return "Hello, World!";
   }
 
-  @RequestMapping("/recipes")
+  @RequestMapping("/recipeByIngredient")
   @ResponseBody
-  List<RecipeSummary> recipes(@RequestParam String ingredientName) {
+  List<RecipeSummary> recipeByIngredient(@RequestParam String ingredient1, @Nullable @RequestParam String cuisine, @Nullable @RequestParam Integer page) {
     return
             jdbcTemplate.query(
                     "select \n" +
@@ -48,9 +51,50 @@ public final class FeedMeController {
                             "on\n" +
                             "   r.recipe_name = i.recipe_name\n" +
                             "where\n" +
-                            "  i.ingredient_name='" + ingredientName + "'\n", // lets take a little moment to remember poor Bobby tables...
+                            "  i.ingredient_name='" + ingredient1 + "'\n" + // lets take a little moment to remember poor Bobby tables...
+                            (StringUtils.isBlank(cuisine) ? "" : "AND r.recipe_cusine='" + cuisine + "'"),
                     (rs, rn) -> new RecipeSummary(rs.getString("recipe_long_name"), rs.getString("recipe_description")));
   }
+
+  @RequestMapping("/recipeByTwoIngredients")
+  @ResponseBody
+  List<RecipeSummary> recipeByTwoIngredients(@RequestParam String ingredient1, @RequestParam String ingredient2, @Nullable @RequestParam String cuisine, @Nullable @RequestParam Integer page) {
+    return
+            jdbcTemplate.query(
+                    "select \n" +
+                            "  r.recipe_long_name,\n" +
+                            "  r.recipe_description\n" +
+                            "from\n" +
+                            "  feedme.recipes r\n" +
+                            "inner join\n" +
+                            "   feedme.recipe_ingredients i1\n" +
+                            "inner join\n" +
+                            "  feedme.recipe_ingredients i2\n" +
+                            "where\n" +
+                            "  i1.ingredient_name = '" + ingredient1 +"'\n" + // what do you mean '; DROP FROM users' is not a valid ingredient!
+                            "  and i2.ingredient_name='" + ingredient2 + "'\n" +
+                            "  and i1.recipe_name=i2.recipe_name\n" +
+                            "  and r.recipe_name=i2.recipe_name\n" + // lets take a little moment to remember poor Bobby tables...
+                            (StringUtils.isBlank(cuisine) ? "" : "AND r.recipe_cusine='" + cuisine + "'"),
+                    (rs, rn) -> new RecipeSummary(rs.getString("recipe_long_name"), rs.getString("recipe_description")));
+  }
+
+  @RequestMapping("/recipeByName")
+  @ResponseBody
+  List<RecipeSummary> recipeByName(@RequestParam String name) {
+    return
+            jdbcTemplate.query(
+                    "select \n" +
+                            "  r.recipe_long_name, \n" +
+                            "  r.recipe_description\n" +
+                            "from\n" +
+                            "   feedme.recipes r\n" +
+                            "where\n" +
+                            "  r.recipe_name='" + name + "'\n", // Nothing could ever go wrong with this...
+                    (rs, rn) -> new RecipeSummary(rs.getString("recipe_long_name"), rs.getString("recipe_description")));
+  }
+
+
 
   @RequestMapping("/db")
   @ResponseBody
