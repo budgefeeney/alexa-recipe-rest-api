@@ -7,7 +7,7 @@ create table feedme.recipes(
     recipe_name varchar(200) primary key,
     recipe_long_name varchar(512),
     recipe_description varchar(512),
-    recipe_cusine varchar(200)
+    recipe_cuisine varchar(200)
 );
 
 create table feedme.recipe_ingredients(

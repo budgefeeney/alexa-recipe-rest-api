@@ -3,9 +3,11 @@ package com.ncr.alexa.feedme;
 import static java.util.Comparator.comparing;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,14 +41,20 @@ public final class FeedMeController {
     return "Hello, World!";
   }
 
-  @RequestMapping("/recipeByIngredient")
+  @RequestMapping("/user/{username}/recipeByIngredient")
   @ResponseBody
-  List<RecipeSummary> recipeByIngredient(@RequestParam String ingredient1, @Nullable @RequestParam String cuisine, @Nullable @RequestParam Integer page) {
+  List<RecipeSummary> recipeByIngredient(
+          @PathVariable("username") String username,
+          @RequestParam String ingredient1,
+          @Nullable @RequestParam String cuisine,
+          @Nullable @RequestParam Integer page) {
     return
             jdbcTemplate.query(
                     "select \n" +
+                            "  r.recipe_name,\n" +
                             "  r.recipe_long_name, \n" +
-                            "  r.recipe_description\n" +
+                            "  r.recipe_description,\n" +
+                            "  r.recipe_cuisine\n" +
                             "from\n" +
                             "   feedme.recipes r\n" +
                             "inner join\n" +
@@ -59,18 +67,25 @@ public final class FeedMeController {
                     (rs, rn) -> new RecipeSummary(
                             rs.getString("recipe_name"),
                             rs.getString("recipe_long_name"),
-                            rs.getString("recipe_description")));
+                            rs.getString("recipe_description"),
+                            rs.getString("recipe_cuisine")));
   }
 
-  @RequestMapping("/recipeByTwoIngredients")
+  @RequestMapping("/user/{username}/recipeByTwoIngredients")
   @ResponseBody
-  List<RecipeSummary> recipeByTwoIngredients(@RequestParam String ingredient1, @RequestParam String ingredient2, @Nullable @RequestParam String cuisine, @Nullable @RequestParam Integer page) {
+  List<RecipeSummary> recipeByTwoIngredients(
+          @PathVariable("username") String username,
+          @RequestParam String ingredient1,
+          @RequestParam String ingredient2,
+          @Nullable @RequestParam String cuisine,
+          @Nullable @RequestParam Integer page) {
     return
             jdbcTemplate.query(
                     "select \n" +
                             "  r.recipe_name,\n" +
-                            "  r.recipe_long_name,\n" +
-                            "  r.recipe_description\n" +
+                            "  r.recipe_long_name, \n" +
+                            "  r.recipe_description,\n" +
+                            "  r.recipe_cuisine\n" +
                             "from\n" +
                             "  feedme.recipes r\n" +
                             "inner join\n" +
@@ -86,18 +101,26 @@ public final class FeedMeController {
                     (rs, rn) -> new RecipeSummary(
                                   rs.getString("recipe_name"),
                                   rs.getString("recipe_long_name"),
-                                  rs.getString("recipe_description")));
+                                  rs.getString("recipe_description"),
+                                  rs.getString("recipe_cuisine")));
   }
 
-  @RequestMapping("/recipeByThreeIngredients")
+  @RequestMapping("/user/{username}/recipeByThreeIngredients")
   @ResponseBody
-  List<RecipeSummary> recipeByThreeIngredients(@RequestParam String ingredient1, @RequestParam String ingredient2, @RequestParam String ingredient3, @Nullable @RequestParam String cuisine, @Nullable @RequestParam Integer page) {
+  List<RecipeSummary> recipeByThreeIngredients(
+          @PathVariable("username") String username,
+          @RequestParam String ingredient1,
+          @RequestParam String ingredient2,
+          @RequestParam String ingredient3,
+          @Nullable @RequestParam String cuisine,
+          @Nullable @RequestParam Integer page) {
     return
             jdbcTemplate.query(
                     "select \n" +
                             "  r.recipe_name,\n" +
-                            "  r.recipe_long_name,\n" +
-                            "  r.recipe_description\n" +
+                            "  r.recipe_long_name, \n" +
+                            "  r.recipe_description,\n" +
+                            "  r.recipe_cuisine\n" +
                             "from\n" +
                             "  feedme.recipes r\n" +
                             "inner join\n" +
@@ -117,7 +140,8 @@ public final class FeedMeController {
                     (rs, rn) -> new RecipeSummary(
                                   rs.getString("recipe_name"),
                                   rs.getString("recipe_long_name"),
-                                  rs.getString("recipe_description")));
+                                  rs.getString("recipe_description"),
+                                  rs.getString("recipe_cuisine")));
   }
 
   @RequestMapping("/recipeByName")
@@ -128,34 +152,80 @@ public final class FeedMeController {
                     "select \n" +
                             "  r.recipe_name,\n" +
                             "  r.recipe_long_name, \n" +
-                            "  r.recipe_description\n" +
+                            "  r.recipe_description,\n" +
+                            "  r.recipe_cuisine\n" +
                             "from\n" +
                             "   feedme.recipes r\n" +
                             "where\n" +
-                            "  r.recipe_long_name='" + name + "'\n", // Nothing could ever go wrong with this...
+                            "  UPPER(r.recipe_long_name) LIKE '%" + name.toUpperCase() + "%'\n", // Nothing could ever go wrong with this...
                     (rs, rn) -> new RecipeSummary(
                             rs.getString("recipe_name"),
                             rs.getString("recipe_long_name"),
-                            rs.getString("recipe_description")));
+                            rs.getString("recipe_description"),
+                            rs.getString("recipe_cuisine")));
   }
 
   @RequestMapping("/recipeById")
   @ResponseBody
-  List<RecipeSummary> recipeById(@RequestParam String id) {
-    return
+  Recipe recipeById(@RequestParam String id) {
+    var summary =
             jdbcTemplate.query(
                     "select \n" +
                             "  r.recipe_name,\n" +
                             "  r.recipe_long_name, \n" +
-                            "  r.recipe_description\n" +
+                            "  r.recipe_description,\n" +
+                            "  r.recipe_cuisine\n" +
                             "from\n" +
                             "   feedme.recipes r\n" +
                             "where\n" +
-                            "  r.recipe_name='" + id + "'\n", // Nothing could ever go wrong with this...
+                            "  r.recipe_name='" + id + "'\n", // Guess who hasn't done their NCR security course...
                     (rs, rn) -> new RecipeSummary(
                             rs.getString("recipe_name"),
                             rs.getString("recipe_long_name"),
-                            rs.getString("recipe_description")));
+                            rs.getString("recipe_description"),
+                            rs.getString("recipe_cuisine")));
+
+    if (summary.isEmpty()) {
+      return null;
+    } else if (summary.size() > 1) {
+      throw new IllegalStateException("Two recipes in the database with the same ID");
+    }
+
+    var ingredients =
+            jdbcTemplate.query(
+                    "select\n" +
+                            "  i.ingredient_name,\n" +
+                            "  i.ingredient_description,\n" +
+                            "  i.ingredient_quantity,\n" +
+                            "  i.ingredient_quantity_unit\n" +
+                            "from\n" +
+                            "  feedme.recipe_ingredients i\n" +
+                            "where\n" +
+                            "  i.recipe_name = '" + summary.get(0).getId() + "'",
+                    (rs, rn) -> new Ingredient(
+                            rs.getString("ingredient_name"),
+                            rs.getString("ingredient_description"),
+                            rs.getDouble("ingredient_quantity"),
+                            Ingredient.Unit.valueOf(rs.getString("ingredient_quantity_unit"))));
+
+    var steps =
+            jdbcTemplate.query(
+                    "select\n" +
+                            "  s.step_id,\n" +
+                            "  s.step_time_minutes,\n" +
+                            "  s.step_description\n" +
+                            "from\n" +
+                            "  feedme.recipe_steps s\n" +
+                            "where\n" +
+                            "  s.recipe_name = '" + summary.get(0).getId() + "'\n" +
+                            "order by\n" +
+                            "  s.step_id",
+                    (rs, rn) -> new RecipeStep(
+                            rs.getInt("step_id"),
+                            rs.getInt("step_time_minutes"),
+                            rs.getString("step_description")));
+
+    return new Recipe(summary.get(0), ingredients, steps);
   }
 
 
@@ -168,26 +238,29 @@ public final class FeedMeController {
                             "from\n" +
                             "  feedme.allergies\n" +
                             "where\n" +
-                            "  user_name='" + username + "'", // Nothing could ever go wrong with this...
+                            "  user_name='" + username + "'", // I trust you guys, we're all internet friends...
                     String.class);
   }
 
   @RequestMapping(value = "/user/{username}/allergies", method = RequestMethod.POST)
-  void setAllergies(@PathVariable("username") String username, @RequestBody List<String> allergies) {
+  List<String> setAllergies(@PathVariable("username") String username, @RequestBody List<String> allergies) {
     deleteAllAllergies(username);
     updateAllergies(username, allergies);
+    return allergies(username);
   }
 
   @RequestMapping(value = "/user/{username}/allergies", method = RequestMethod.PUT)
-  void updateAllergies(@PathVariable("username") String username, @RequestBody List<String> allergies) {
+  List<String>  updateAllergies(@PathVariable("username") String username, @RequestBody List<String> allergies) {
     for (String allergy : allergies) {
-      jdbcTemplate.execute("INSERT INTO feedme.allergies VALUES('" + username +"', '" + allergy + "'");
+      jdbcTemplate.execute("INSERT INTO feedme.allergies VALUES('" + username +"', '" + allergy + "')");
     }
+    return allergies(username);
   }
 
   @RequestMapping(value = "/user/{username}/allergies", method = RequestMethod.DELETE)
-  void deleteAllAllergies(@PathVariable("username") String username) {
+  List<String>  deleteAllAllergies(@PathVariable("username") String username) {
     jdbcTemplate.execute("delete from feedme.allergies where user_name='" + username + "'");
+    return Collections.emptyList();
   }
 
 

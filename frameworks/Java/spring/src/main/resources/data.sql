@@ -4,7 +4,7 @@ insert into feedme.recipe_ingredients values('CourgetteLinguine','Courgette','co
 insert into feedme.recipe_ingredients values('CourgetteLinguine','Onion','onions, thinly sliced',0.5,'unit');
 insert into feedme.recipe_ingredients values('CourgetteLinguine','Lemon','lemon',1,'unit');
 insert into feedme.recipe_ingredients values('CourgetteLinguine','Chilli Flakes','chilli flakes',2,'tspn');
-insert into feedme.recipe_ingredients values('CourgetteLinguine','Fresh Mint','fresh mint, cut coarsely',1,'packer');
+insert into feedme.recipe_ingredients values('CourgetteLinguine','Fresh Mint','fresh mint, cut coarsely',1,'packet');
 insert into feedme.recipe_ingredients values('CourgetteLinguine','Linguine','linguine',300,'gram');
 insert into feedme.recipe_ingredients values('CourgetteLinguine','Parmesan','grated parmesan cheese',50,'gram');
 insert into feedme.recipe_ingredients values('CourgetteLinguine','Olive Oil','olive oil',1,'tblspn');
