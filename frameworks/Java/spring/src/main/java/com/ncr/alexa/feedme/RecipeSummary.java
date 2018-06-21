@@ -3,12 +3,18 @@ package com.ncr.alexa.feedme;
 import java.util.Objects;
 
 public class RecipeSummary {
+    private final String id;
     private final String name;
     private final String description;
 
-    public RecipeSummary(String name, String description) {
+    public RecipeSummary(String id, String name, String description) {
+        this.id = id;
         this.name = name;
         this.description = description;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getName() {
@@ -24,12 +30,12 @@ public class RecipeSummary {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RecipeSummary that = (RecipeSummary) o;
-        return Objects.equals(name, that.name);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(name);
+        return Objects.hash(id);
     }
 }

@@ -15,7 +15,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -53,7 +56,10 @@ public final class FeedMeController {
                             "where\n" +
                             "  i.ingredient_name='" + ingredient1 + "'\n" + // lets take a little moment to remember poor Bobby tables...
                             (StringUtils.isBlank(cuisine) ? "" : "AND r.recipe_cusine='" + cuisine + "'"),
-                    (rs, rn) -> new RecipeSummary(rs.getString("recipe_long_name"), rs.getString("recipe_description")));
+                    (rs, rn) -> new RecipeSummary(
+                            rs.getString("recipe_name"),
+                            rs.getString("recipe_long_name"),
+                            rs.getString("recipe_description")));
   }
 
   @RequestMapping("/recipeByTwoIngredients")
@@ -62,6 +68,7 @@ public final class FeedMeController {
     return
             jdbcTemplate.query(
                     "select \n" +
+                            "  r.recipe_name,\n" +
                             "  r.recipe_long_name,\n" +
                             "  r.recipe_description\n" +
                             "from\n" +
@@ -74,9 +81,43 @@ public final class FeedMeController {
                             "  i1.ingredient_name = '" + ingredient1 +"'\n" + // what do you mean '; DROP FROM users' is not a valid ingredient!
                             "  and i2.ingredient_name='" + ingredient2 + "'\n" +
                             "  and i1.recipe_name=i2.recipe_name\n" +
-                            "  and r.recipe_name=i2.recipe_name\n" + // lets take a little moment to remember poor Bobby tables...
+                            "  and r.recipe_name=i1.recipe_name\n" + // lets take a little moment to remember poor Bobby tables...
                             (StringUtils.isBlank(cuisine) ? "" : "AND r.recipe_cusine='" + cuisine + "'"),
-                    (rs, rn) -> new RecipeSummary(rs.getString("recipe_long_name"), rs.getString("recipe_description")));
+                    (rs, rn) -> new RecipeSummary(
+                                  rs.getString("recipe_name"),
+                                  rs.getString("recipe_long_name"),
+                                  rs.getString("recipe_description")));
+  }
+
+  @RequestMapping("/recipeByThreeIngredients")
+  @ResponseBody
+  List<RecipeSummary> recipeByThreeIngredients(@RequestParam String ingredient1, @RequestParam String ingredient2, @RequestParam String ingredient3, @Nullable @RequestParam String cuisine, @Nullable @RequestParam Integer page) {
+    return
+            jdbcTemplate.query(
+                    "select \n" +
+                            "  r.recipe_name,\n" +
+                            "  r.recipe_long_name,\n" +
+                            "  r.recipe_description\n" +
+                            "from\n" +
+                            "  feedme.recipes r\n" +
+                            "inner join\n" +
+                            "   feedme.recipe_ingredients i1\n" +
+                            "inner join\n" +
+                            "  feedme.recipe_ingredients i2\n" +
+                            "inner join\n" +
+                            "  feedme.recipe_ingredients i3\n" +
+                            "where\n" +
+                            "  i1.ingredient_name = '" + ingredient1 +"'\n" + // what do you mean '; DROP FROM users' is not a valid ingredient!
+                            "  and i2.ingredient_name='" + ingredient2 + "'\n" +
+                            "  and i3.ingredient_name='" + ingredient3 + "'\n" +
+                            "  and i1.recipe_name=i2.recipe_name\n" +
+                            "  and i2.recipe_name=i3.recipe_name\n" +
+                            "  and r.recipe_name=i1.recipe_name\n" + // lets take a little moment to remember poor Bobby tables...
+                            (StringUtils.isBlank(cuisine) ? "" : "AND r.recipe_cusine='" + cuisine + "'"),
+                    (rs, rn) -> new RecipeSummary(
+                                  rs.getString("recipe_name"),
+                                  rs.getString("recipe_long_name"),
+                                  rs.getString("recipe_description")));
   }
 
   @RequestMapping("/recipeByName")
@@ -85,13 +126,63 @@ public final class FeedMeController {
     return
             jdbcTemplate.query(
                     "select \n" +
+                            "  r.recipe_name,\n" +
                             "  r.recipe_long_name, \n" +
                             "  r.recipe_description\n" +
                             "from\n" +
                             "   feedme.recipes r\n" +
                             "where\n" +
-                            "  r.recipe_name='" + name + "'\n", // Nothing could ever go wrong with this...
-                    (rs, rn) -> new RecipeSummary(rs.getString("recipe_long_name"), rs.getString("recipe_description")));
+                            "  r.recipe_long_name='" + name + "'\n", // Nothing could ever go wrong with this...
+                    (rs, rn) -> new RecipeSummary(
+                            rs.getString("recipe_name"),
+                            rs.getString("recipe_long_name"),
+                            rs.getString("recipe_description")));
+  }
+
+  @RequestMapping("/recipeById")
+  @ResponseBody
+  List<RecipeSummary> recipeById(@RequestParam String id) {
+    return
+            jdbcTemplate.query(
+                    "select \n" +
+                            "  r.recipe_name,\n" +
+                            "  r.recipe_long_name, \n" +
+                            "  r.recipe_description\n" +
+                            "from\n" +
+                            "   feedme.recipes r\n" +
+                            "where\n" +
+                            "  r.recipe_name='" + id + "'\n", // Nothing could ever go wrong with this...
+                    (rs, rn) -> new RecipeSummary(
+                            rs.getString("recipe_name"),
+                            rs.getString("recipe_long_name"),
+                            rs.getString("recipe_description")));
+  }
+
+
+  @RequestMapping(value = "/user/{username}/allergies", method = RequestMethod.GET)
+  List<String> allergies(@PathVariable("username") String username) {
+    return
+            jdbcTemplate.queryForList(
+                    "select\n" +
+                            "  ingredient_name\n" +
+                            "from\n" +
+                            "  feedme.allergies\n" +
+                            "where\n" +
+                            "  user_name='" + username + "'", // Nothing could ever go wrong with this...
+                    String.class);
+  }
+
+  @RequestMapping(value = "/user/{username}/allergies", method = RequestMethod.POST)
+  void setAllergies(@PathVariable("username") String username, @RequestBody List<String> allergies) {
+    jdbcTemplate.execute("delete from feedme.allergies where user_name='" + username + "'");
+    updateAllergies(username, allergies);
+  }
+
+  @RequestMapping(value = "/user/{username}/allergies", method = RequestMethod.PUT)
+  void updateAllergies(@PathVariable("username") String username, @RequestBody List<String> allergies) {
+    for (String allergy : allergies) {
+      jdbcTemplate.execute("INSERT INTO feedme.allergies VALUES('" + username +"', '" + allergy + "'");
+    }
   }
 
 
