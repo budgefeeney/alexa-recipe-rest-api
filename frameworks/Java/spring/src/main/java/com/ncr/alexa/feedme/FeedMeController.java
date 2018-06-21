@@ -174,7 +174,7 @@ public final class FeedMeController {
 
   @RequestMapping(value = "/user/{username}/allergies", method = RequestMethod.POST)
   void setAllergies(@PathVariable("username") String username, @RequestBody List<String> allergies) {
-    jdbcTemplate.execute("delete from feedme.allergies where user_name='" + username + "'");
+    deleteAllAllergies(username);
     updateAllergies(username, allergies);
   }
 
@@ -183,6 +183,11 @@ public final class FeedMeController {
     for (String allergy : allergies) {
       jdbcTemplate.execute("INSERT INTO feedme.allergies VALUES('" + username +"', '" + allergy + "'");
     }
+  }
+
+  @RequestMapping(value = "/user/{username}/allergies", method = RequestMethod.DELETE)
+  void deleteAllAllergies(@PathVariable("username") String username) {
+    jdbcTemplate.execute("delete from feedme.allergies where user_name='" + username + "'");
   }
 
 
