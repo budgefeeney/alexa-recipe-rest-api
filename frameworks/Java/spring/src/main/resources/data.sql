@@ -41,3 +41,37 @@ insert into feedme.recipe_steps values('ChickenCourgettePie', 6, 12, 'Remove you
 insert into feedme.recipe_steps values('ChickenCourgettePie', 7, 16, 'Add your chicken and pastry mix to the dish, place remainign pastry on as a lid, and place in the oven and wait');
 insert into feedme.recipe_steps values('ChickenCourgettePie', 8, 60, 'Remove your pie from the oven and enjoy');
 
+
+
+insert into feedme.recipes VALUES ('CourgetteLasagne', 'Creamy Courgette Lasagne', 'A creamy quick dish for a last minute dinner party and impress veggie friends', 'italian');
+
+insert into feedme.recipe_ingredients values('CourgetteLasagne','Courgette','courgettes, coarsely grated', 700,'gram');
+insert into feedme.recipe_ingredients values('CourgetteLasagne','Onion','onions, finely chopped',1,'unit');
+insert into feedme.recipe_ingredients values('CourgetteLasagne','Garlic Cloved','garlic cloves, crushed',2,'unit');
+insert into feedme.recipe_ingredients values('CourgetteLasagne','Ricotta','tub of ricotta',1,'unit');
+insert into feedme.recipe_ingredients values('CourgetteLasagne','Cheddar','cheddar grated',50,'gram');
+insert into feedme.recipe_ingredients values('CourgetteLinguine','Lasagne Sheets','lasagne sheets',9,'unit');
+insert into feedme.recipe_ingredients values('CourgetteLasagne','Tomato','tomato sauce',350,'gram');
+insert into feedme.recipe_ingredients values('CourgetteLasagne','Sunflower Oil','olive oil',1,'tblspn');
+
+
+insert into feedme.recipe_steps values('CourgetteLasagne', 1, 0, 'Heat oven to 220C/fan 200C/gas 7. Put a pan of water on to boil, then cook the lasagne sheets for about 5 mins until softened, but not cooked through. Rinse in cold water, then drizzle with a little oil to stop them sticking together.');
+insert into feedme.recipe_steps values('CourgetteLasagne', 2, 5, 'Meanwhile, heat the oil in a large frying pan, then fry the onion. After 3 mins, add the courgettes and garlic and continue to fry until the courgette has softened and turned bright green. Stir in 2/3 of both the ricotta and the cheddar, then season to taste. Heat the tomato sauce in the microwave for 2 mins on High until hot.');
+insert into feedme.recipe_steps values('CourgetteLasagne', 3, 12, 'In a large baking dish, layer up the lasagne, starting with half the courgette mix, then pasta, then tomato sauce. Repeat, top with blobs of the remaining ricotta, then scatter with the rest of the cheddar. Bake on the top shelf for about 10 mins until the pasta is tender and the cheese is golden.');
+
+
+
+insert into feedme.recipes VALUES ('CourgetteBaconPasta', 'Creamy courgette & bacon pasta', 'A quick and creamy carbonara-style tagliatelle that showcases delicious courgettes contrasted with cream and pancetta', 'italian');
+
+insert into feedme.recipe_ingredients values('CourgetteBaconPasta','Courgette','courgettes, coarsely grated', 4,'unit');
+insert into feedme.recipe_ingredients values('CourgetteBaconPasta','Bacon','diced pancetta or bacon lardons',150,'gram');
+insert into feedme.recipe_ingredients values('CourgetteBaconPasta','Garlic Cloved','garlic cloves, crushed',2,'unit');
+insert into feedme.recipe_ingredients values('CourgetteBaconPasta','Creme Fraich','tub of creme fraiche',200,'gram');
+insert into feedme.recipe_ingredients values('CourgetteBaconPasta','Cheddar','cheddar grated',50,'gram');
+insert into feedme.recipe_ingredients values('CourgetteBaconPasta','Tagliatelle','lasagne sheets',300,'gram');
+insert into feedme.recipe_ingredients values('CourgetteBaconPasta','Tomato','tomato sauce',350,'gram');
+insert into feedme.recipe_ingredients values('CourgetteBaconPasta','Olive Oil','olive oil',1,'tblspn');
+
+
+insert into feedme.recipe_steps values('CourgetteBaconPasta', 1, 0, 'Heat the olive oil in a large frying pan and sizzle the pancetta or bacon for about 5 mins until starting to crisp. Turn up the heat and add the grated courgette to the pan. Cook for 5 mins or until soft and starting to brown then add the garlic and cook for a minute longer. Season and set aside.');
+insert into feedme.recipe_steps values('CourgetteBaconPasta', 2, 5, 'Cook the tagliatelle according to the pack instructions and scoop out a cupful of cooking water. Drain the tagliatelle and tip into the frying pan with the bacon and courgette. Over a low heat toss everything together with the crème fraiche and half the Parmesan adding a splash of pasta water too if you need to loosen the sauce. Season to taste and serve twirled into bowls with the remaining Parmesan scattered over.');
