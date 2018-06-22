@@ -43,6 +43,11 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-jdbc-driver</artifactId>
+      <version>3.3.0</version>
+    </dependency>
   </dependencies>
 
   <build>

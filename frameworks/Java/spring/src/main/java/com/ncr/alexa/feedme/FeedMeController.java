@@ -2,18 +2,25 @@ package com.ncr.alexa.feedme;
 
 import static java.util.Comparator.comparing;
 
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.xml.SqlXmlFeatureNotImplementedException;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -41,6 +48,28 @@ public final class FeedMeController {
     return "Hello, World!";
   }
 
+
+  private static RowMapper<RecipeSummary> RECIPE_SUMMARY_MAPPER = new RowMapper<RecipeSummary>() {
+    @Override
+    public RecipeSummary mapRow(ResultSet rs, int i) throws SQLException {
+      System.out.println ("Mapping row " + i);
+      try {
+        HashMap<String,Object> map =
+                new ObjectMapper().readValue(rs.getString(1), HashMap.class);
+
+        return new RecipeSummary(
+                String.valueOf(map.get("id")),
+                String.valueOf(map.get("name")),
+                String.valueOf(map.get("description")),
+                String.valueOf(map.get("cuisine")));
+
+      } catch (IOException ioe) {
+        throw new SQLException("Unparseable return type" + ioe.getMessage(), ioe);
+      }
+    }
+  };
+
+
   @RequestMapping("/user/{username}/recipeByIngredient")
   @ResponseBody
   List<RecipeSummary> recipeByIngredient(
@@ -48,27 +77,13 @@ public final class FeedMeController {
           @RequestParam String ingredient1,
           @Nullable @RequestParam String cuisine,
           @Nullable @RequestParam Integer page) {
-    return
-            jdbcTemplate.query(
-                    "select \n" +
-                            "  r.recipe_name,\n" +
-                            "  r.recipe_long_name, \n" +
-                            "  r.recipe_description,\n" +
-                            "  r.recipe_cuisine\n" +
-                            "from\n" +
-                            "   feedme.recipes r\n" +
-                            "inner join\n" +
-                            "   feedme.recipe_ingredients i\n" +
-                            "on\n" +
-                            "   r.recipe_name = i.recipe_name\n" +
-                            "where\n" +
-                            "  UPPER(i.ingredient_name)='" + ingredient1.toUpperCase() + "'\n" + // lets take a little moment to remember poor Bobby tables...
-                            (StringUtils.isBlank(cuisine) ? "" : "AND UPPER(r.recipe_cuisine)='" + cuisine.toUpperCase() + "'"),
-                    (rs, rn) -> new RecipeSummary(
-                            rs.getString("recipe_name"),
-                            rs.getString("recipe_long_name"),
-                            rs.getString("recipe_description"),
-                            rs.getString("recipe_cuisine")));
+
+      return StringUtils.isBlank(cuisine)
+          ? jdbcTemplate.query (
+              "match (r)-[:HAS_INGREDIENT]->(i:Ingredient) where i.name =~ '(?i)" + ingredient1 + "' return r",
+              RECIPE_SUMMARY_MAPPER)
+          : jdbcTemplate.query ("match (r)-[:HAS_INGREDIENT]->(i:Ingredient), (c:Cuisine) where i.name =~ '(?i)" + ingredient1 + "' and (r)-[:IS_CUISINE_OF]->(c:Cuisine {name:'" + cuisine + "'}) return r",
+              RECIPE_SUMMARY_MAPPER);
   }
 
   @RequestMapping("/user/{username}/recipeByTwoIngredients")
@@ -331,4 +346,6 @@ public final class FeedMeController {
     return Math.min(500, Math.max(1, parsedValue));
   }
 
+
 }
+
