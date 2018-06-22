@@ -78,12 +78,15 @@ public final class FeedMeController {
           @Nullable @RequestParam String cuisine,
           @Nullable @RequestParam Integer page) {
 
-      return StringUtils.isBlank(cuisine)
-          ? jdbcTemplate.query (
-              "match (r)-[:HAS_INGREDIENT]->(i:Ingredient) where i.name =~ '(?i)" + ingredient1 + "' return r",
-              RECIPE_SUMMARY_MAPPER)
-          : jdbcTemplate.query ("match (r)-[:HAS_INGREDIENT]->(i:Ingredient), (c:Cuisine) where i.name =~ '(?i)" + ingredient1 + "' and (r)-[:IS_CUISINE_OF]->(c:Cuisine {name:'" + cuisine + "'}) return r",
-              RECIPE_SUMMARY_MAPPER);
+    return jdbcTemplate.query (
+            "match \n" +
+                    "\t(r:Recipe), (i1:Ingredient)\n" +
+                    (StringUtils.isBlank(cuisine) ? "" : "\t, (c:Cuisine) \n") +
+                    "where \n" +
+                    "\t(r)--(i1) and i1.name =~ '(?i)" + ingredient1 + "'\n" +
+                    (StringUtils.isBlank(cuisine) ? "" : "\tand c.name =~ '(?i)" + cuisine + "'\n") +
+                    "return r",
+            RECIPE_SUMMARY_MAPPER);
   }
 
   @RequestMapping("/user/{username}/recipeByTwoIngredients")
@@ -94,30 +97,17 @@ public final class FeedMeController {
           @RequestParam String ingredient2,
           @Nullable @RequestParam String cuisine,
           @Nullable @RequestParam Integer page) {
-    return
-            jdbcTemplate.query(
-                    "select \n" +
-                            "  r.recipe_name,\n" +
-                            "  r.recipe_long_name, \n" +
-                            "  r.recipe_description,\n" +
-                            "  r.recipe_cuisine\n" +
-                            "from\n" +
-                            "  feedme.recipes r\n" +
-                            "inner join\n" +
-                            "   feedme.recipe_ingredients i1\n" +
-                            "inner join\n" +
-                            "  feedme.recipe_ingredients i2\n" +
-                            "where\n" +
-                            "  UPPER(i1.ingredient_name) = '" + ingredient1.toUpperCase() +"'\n" + // what do you mean '; DROP FROM users' is not a valid ingredient!
-                            "  and UPPER(i2.ingredient_name)='" + ingredient2.toUpperCase() + "'\n" +
-                            "  and i1.recipe_name=i2.recipe_name\n" +
-                            "  and r.recipe_name=i1.recipe_name\n" + // lets take a little moment to remember poor Bobby tables...
-                            (StringUtils.isBlank(cuisine) ? "" : "AND UPPER(r.recipe_cuisine)='" + cuisine.toUpperCase() + "'"),
-                    (rs, rn) -> new RecipeSummary(
-                                  rs.getString("recipe_name"),
-                                  rs.getString("recipe_long_name"),
-                                  rs.getString("recipe_description"),
-                                  rs.getString("recipe_cuisine")));
+    return jdbcTemplate.query (
+            "match \n" +
+                    "\t(r:Recipe), (i1:Ingredient), (i2:Ingredient)\n" +
+                    (StringUtils.isBlank(cuisine) ? "" : "\t, (c:Cuisine) \n") +
+                    "where \n" +
+                    "\t(r)--(i1) and i1.name =~ '(?i)" + ingredient1 + "'\n" +
+                    "\tand (r)--(i2) and i2.name =~ '(?i)" + ingredient2 + "' \n" +
+                    "\tand (i1) <> (i2) \n" +
+                    (StringUtils.isBlank(cuisine) ? "" : "\tand c.name =~ '(?i)" + cuisine + "'\n") +
+                    "return r",
+            RECIPE_SUMMARY_MAPPER);
   }
 
   @RequestMapping("/user/{username}/recipeByThreeIngredients")
@@ -129,34 +119,25 @@ public final class FeedMeController {
           @RequestParam String ingredient3,
           @Nullable @RequestParam String cuisine,
           @Nullable @RequestParam Integer page) {
-    return
-            jdbcTemplate.query(
-                    "select \n" +
-                            "  r.recipe_name,\n" +
-                            "  r.recipe_long_name, \n" +
-                            "  r.recipe_description,\n" +
-                            "  r.recipe_cuisine\n" +
-                            "from\n" +
-                            "  feedme.recipes r\n" +
-                            "inner join\n" +
-                            "   feedme.recipe_ingredients i1\n" +
-                            "inner join\n" +
-                            "  feedme.recipe_ingredients i2\n" +
-                            "inner join\n" +
-                            "  feedme.recipe_ingredients i3\n" +
-                            "where\n" +
-                            "  UPPER(i1.ingredient_name) = '" + ingredient1.toUpperCase() +"'\n" + // what do you mean '; DROP FROM users' is not a valid ingredient!
-                            "  and UPPER(i2.ingredient_name)='" + ingredient2.toUpperCase() + "'\n" +
-                            "  and UPPER(i3.ingredient_name)='" + ingredient3.toUpperCase() + "'\n" +
-                            "  and i1.recipe_name=i2.recipe_name\n" +
-                            "  and i2.recipe_name=i3.recipe_name\n" +
-                            "  and r.recipe_name=i1.recipe_name\n" + // lets take a little moment to remember poor Bobby tables...
-                            (StringUtils.isBlank(cuisine) ? "" : "AND UPPER(r.recipe_cuisine)='" + cuisine.toUpperCase() + "'"),
-                    (rs, rn) -> new RecipeSummary(
-                                  rs.getString("recipe_name"),
-                                  rs.getString("recipe_long_name"),
-                                  rs.getString("recipe_description"),
-                                  rs.getString("recipe_cuisine")));
+    throw new UnsupportedOperationException("Three ingredient search not supported");
+    // It broke the DB!
+//    return
+//            jdbcTemplate.query(
+//                    "match \n" +
+//                            "(r:Recipe), (i1:Ingredient), (i2:Ingredient), (i3:Ingredient)\n" +
+//                            (StringUtils.isBlank(cuisine) ? "" : ", (c:Cuisine) \n") +
+//                            "where \n" +
+//                            "(r)--(i1) and i1.name =~ '(?i)" + ingredient1 + "' \n" +
+//                            "and (r)--(i2) and i2.name =~ '(?i)" + ingredient2 + "' \n" +
+//                            "and (r)--(i3) and i3.name =~ '(?i)"  + ingredient3 +"' \n" +
+//                            "and (i1) <> (i2) and (i2) <> (i1) and (i1) <> (i3) \n" +
+//                            (StringUtils.isBlank(cuisine) ? "" : "and c.name =~ '(?i)" + cuisine + "' \n") +
+//                            "return r",
+//                    (rs, rn) -> new RecipeSummary(
+//                                  rs.getString("recipe_name"),
+//                                  rs.getString("recipe_long_name"),
+//                                  rs.getString("recipe_description"),
+//                                  rs.getString("recipe_cuisine")));
   }
 
   @RequestMapping("/recipeByName")
