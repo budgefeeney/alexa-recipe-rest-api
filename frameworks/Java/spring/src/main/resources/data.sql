@@ -50,7 +50,7 @@ insert into feedme.recipe_ingredients values('CourgetteLasagne','Onion','onions,
 insert into feedme.recipe_ingredients values('CourgetteLasagne','Garlic Cloved','garlic cloves, crushed',2,'unit');
 insert into feedme.recipe_ingredients values('CourgetteLasagne','Ricotta','tub of ricotta',1,'unit');
 insert into feedme.recipe_ingredients values('CourgetteLasagne','Cheddar','cheddar grated',50,'gram');
-insert into feedme.recipe_ingredients values('CourgetteLinguine','Lasagne Sheets','lasagne sheets',9,'unit');
+insert into feedme.recipe_ingredients values('CourgetteLasagne','Lasagne Sheets','lasagne sheets',9,'unit');
 insert into feedme.recipe_ingredients values('CourgetteLasagne','Tomato','tomato sauce',350,'gram');
 insert into feedme.recipe_ingredients values('CourgetteLasagne','Sunflower Oil','olive oil',1,'tblspn');
 
@@ -75,3 +75,14 @@ insert into feedme.recipe_ingredients values('CourgetteBaconPasta','Olive Oil','
 
 insert into feedme.recipe_steps values('CourgetteBaconPasta', 1, 0, 'Heat the olive oil in a large frying pan and sizzle the pancetta or bacon for about 5 mins until starting to crisp. Turn up the heat and add the grated courgette to the pan. Cook for 5 mins or until soft and starting to brown then add the garlic and cook for a minute longer. Season and set aside.');
 insert into feedme.recipe_steps values('CourgetteBaconPasta', 2, 5, 'Cook the tagliatelle according to the pack instructions and scoop out a cupful of cooking water. Drain the tagliatelle and tip into the frying pan with the bacon and courgette. Over a low heat toss everything together with the crème fraiche and half the Parmesan adding a splash of pasta water too if you need to loosen the sauce. Season to taste and serve twirled into bowls with the remaining Parmesan scattered over.');
+
+
+insert into feedme.recipes VALUES ('EggsOnToast', 'Egg with Toast', 'A class British breakfast for a', 'british');
+
+insert into feedme.recipe_ingredients values('EggsOnToast','Bread','bread, one slice', 1,'unit');
+insert into feedme.recipe_ingredients values('EggsOnToast','Egg','an egg',1,'unit');
+
+
+insert into feedme.recipe_steps values('EggsOnToast', 1, 0, 'Put the egg and some salted water in a pot and heat. Leave boil for three minutes');
+insert into feedme.recipe_steps values('EggsOnToast', 2, 4, 'With one minute to go before your egg is ready, put the bread in the toaster.');
+insert into feedme.recipe_steps values('EggsOnToast', 3, 5, 'Enjoy!');
