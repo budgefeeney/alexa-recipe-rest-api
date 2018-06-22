@@ -62,8 +62,8 @@ public final class FeedMeController {
                             "on\n" +
                             "   r.recipe_name = i.recipe_name\n" +
                             "where\n" +
-                            "  i.ingredient_name='" + ingredient1 + "'\n" + // lets take a little moment to remember poor Bobby tables...
-                            (StringUtils.isBlank(cuisine) ? "" : "AND r.recipe_cusine='" + cuisine + "'"),
+                            "  UPPER(i.ingredient_name)='" + ingredient1.toUpperCase() + "'\n" + // lets take a little moment to remember poor Bobby tables...
+                            (StringUtils.isBlank(cuisine) ? "" : "AND UPPER(r.recipe_cuisine)='" + cuisine.toUpperCase() + "'"),
                     (rs, rn) -> new RecipeSummary(
                             rs.getString("recipe_name"),
                             rs.getString("recipe_long_name"),
@@ -93,11 +93,11 @@ public final class FeedMeController {
                             "inner join\n" +
                             "  feedme.recipe_ingredients i2\n" +
                             "where\n" +
-                            "  i1.ingredient_name = '" + ingredient1 +"'\n" + // what do you mean '; DROP FROM users' is not a valid ingredient!
-                            "  and i2.ingredient_name='" + ingredient2 + "'\n" +
+                            "  UPPER(i1.ingredient_name) = '" + ingredient1.toUpperCase() +"'\n" + // what do you mean '; DROP FROM users' is not a valid ingredient!
+                            "  and UPPER(i2.ingredient_name)='" + ingredient2.toUpperCase() + "'\n" +
                             "  and i1.recipe_name=i2.recipe_name\n" +
                             "  and r.recipe_name=i1.recipe_name\n" + // lets take a little moment to remember poor Bobby tables...
-                            (StringUtils.isBlank(cuisine) ? "" : "AND r.recipe_cusine='" + cuisine + "'"),
+                            (StringUtils.isBlank(cuisine) ? "" : "AND UPPER(r.recipe_cuisine)='" + cuisine.toUpperCase() + "'"),
                     (rs, rn) -> new RecipeSummary(
                                   rs.getString("recipe_name"),
                                   rs.getString("recipe_long_name"),
@@ -130,13 +130,13 @@ public final class FeedMeController {
                             "inner join\n" +
                             "  feedme.recipe_ingredients i3\n" +
                             "where\n" +
-                            "  i1.ingredient_name = '" + ingredient1 +"'\n" + // what do you mean '; DROP FROM users' is not a valid ingredient!
-                            "  and i2.ingredient_name='" + ingredient2 + "'\n" +
-                            "  and i3.ingredient_name='" + ingredient3 + "'\n" +
+                            "  UPPER(i1.ingredient_name) = '" + ingredient1.toUpperCase() +"'\n" + // what do you mean '; DROP FROM users' is not a valid ingredient!
+                            "  and UPPER(i2.ingredient_name)='" + ingredient2.toUpperCase() + "'\n" +
+                            "  and UPPER(i3.ingredient_name)='" + ingredient3.toUpperCase() + "'\n" +
                             "  and i1.recipe_name=i2.recipe_name\n" +
                             "  and i2.recipe_name=i3.recipe_name\n" +
                             "  and r.recipe_name=i1.recipe_name\n" + // lets take a little moment to remember poor Bobby tables...
-                            (StringUtils.isBlank(cuisine) ? "" : "AND r.recipe_cusine='" + cuisine + "'"),
+                            (StringUtils.isBlank(cuisine) ? "" : "AND UPPER(r.recipe_cuisine)='" + cuisine.toUpperCase() + "'"),
                     (rs, rn) -> new RecipeSummary(
                                   rs.getString("recipe_name"),
                                   rs.getString("recipe_long_name"),
@@ -178,7 +178,7 @@ public final class FeedMeController {
                             "from\n" +
                             "   feedme.recipes r\n" +
                             "where\n" +
-                            "  r.recipe_name='" + id + "'\n", // Guess who hasn't done their NCR security course...
+                            "  UPPER(r.recipe_name)='" + id.toUpperCase() + "'\n", // Guess who hasn't done their NCR security course...
                     (rs, rn) -> new RecipeSummary(
                             rs.getString("recipe_name"),
                             rs.getString("recipe_long_name"),
