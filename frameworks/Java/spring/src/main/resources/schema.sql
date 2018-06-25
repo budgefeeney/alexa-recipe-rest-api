@@ -17,14 +17,14 @@ create table feedme.recipe_ingredients(
     ingredient_quantity float,
     ingredient_quantity_unit varchar(20)
 );
-alter table feedme.recipe_ingredients add primary key(recipe_name, ingredient_name);
+--alter table feedme.recipe_ingredients add primary key(recipe_name, ingredient_name);
 alter table feedme.recipe_ingredients add foreign key (recipe_name) references feedme.recipes(recipe_name);
 
 create table feedme.recipe_steps(
     recipe_name varchar(200) not null,
     step_id int not null,
     step_time_minutes int,
-    step_description varchar(512)
+    step_description varchar(1012)
 );
 alter table feedme.recipe_steps add primary key (recipe_name, step_id);
 alter table feedme.recipe_steps add foreign key (recipe_name) references feedme.recipes(recipe_name);
