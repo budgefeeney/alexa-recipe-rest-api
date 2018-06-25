@@ -17,6 +17,9 @@ To run
 [spring]$ java -jar target/hello-spring*.jar
 ```
 
+This creates a database in your home directory, with files of the form `alexa.*.db`. 
+
+You can't start this up if there are old database files lying around
 
 
 APIs
