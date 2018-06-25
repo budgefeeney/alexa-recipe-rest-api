@@ -1,22 +1,15 @@
 package com.ncr.alexa.feedme;
 
-import static java.util.Comparator.comparing;
-
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,9 +17,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+/**
+ * Embedded H2 Controller
+ */
 @Controller
 @EnableAutoConfiguration
 public final class FeedMeControllerH2 {
+
+    public static final RowMapper<RecipeSummary> RECIPE_SUMMARY_ROW_MAPPER =
+        (rs, rn) -> new RecipeSummary(
+            rs.getString("recipe_name"),
+            rs.getString("recipe_long_name"),
+            rs.getString("recipe_description"),
+            rs.getString("recipe_cuisine"));
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -44,6 +47,12 @@ public final class FeedMeControllerH2 {
             @RequestParam String ingredient1,
             @Nullable @RequestParam String cuisine,
             @Nullable @RequestParam Integer page) {
+
+        var noCuisine = StringUtils.isBlank(cuisine);
+        var params = noCuisine
+                ? new Object[] { ingredient1.toUpperCase() }
+                : new Object[] { ingredient1.toUpperCase(), cuisine.toUpperCase() };
+
         return
                 jdbcTemplate.query(
                         "select \n" +
@@ -58,13 +67,10 @@ public final class FeedMeControllerH2 {
                                 "on\n" +
                                 "   r.recipe_name = i.recipe_name\n" +
                                 "where\n" +
-                                "  UPPER(i.ingredient_name)='" + ingredient1.toUpperCase() + "'\n" + // lets take a little moment to remember poor Bobby tables...
-                                (StringUtils.isBlank(cuisine) ? "" : "AND UPPER(r.recipe_cuisine)='" + cuisine.toUpperCase() + "'"),
-                        (rs, rn) -> new RecipeSummary(
-                                rs.getString("recipe_name"),
-                                rs.getString("recipe_long_name"),
-                                rs.getString("recipe_description"),
-                                rs.getString("recipe_cuisine")));
+                                "  UPPER(i.ingredient_name)=?\n" +
+                                (noCuisine ? "" : "AND UPPER(r.recipe_cuisine)=?"),
+                        RECIPE_SUMMARY_ROW_MAPPER,
+                        params);
     }
 
     @RequestMapping("/user/{username}/recipeByTwoIngredients")
@@ -75,6 +81,13 @@ public final class FeedMeControllerH2 {
             @RequestParam String ingredient2,
             @Nullable @RequestParam String cuisine,
             @Nullable @RequestParam Integer page) {
+
+
+        var noCuisine = StringUtils.isBlank(cuisine);
+        var params = noCuisine
+                ? new Object[] { ingredient1.toUpperCase(), ingredient2.toUpperCase() }
+                : new Object[] { ingredient1.toUpperCase(), ingredient2.toUpperCase(), cuisine.toUpperCase() };
+
         return
                 jdbcTemplate.query(
                         "select \n" +
@@ -89,16 +102,13 @@ public final class FeedMeControllerH2 {
                                 "inner join\n" +
                                 "  feedme.recipe_ingredients i2\n" +
                                 "where\n" +
-                                "  UPPER(i1.ingredient_name) = '" + ingredient1.toUpperCase() +"'\n" + // what do you mean '; DROP FROM users' is not a valid ingredient!
-                                "  and UPPER(i2.ingredient_name)='" + ingredient2.toUpperCase() + "'\n" +
+                                "  UPPER(i1.ingredient_name) = ?\n" +
+                                "  and UPPER(i2.ingredient_name)=?\n" +
                                 "  and i1.recipe_name=i2.recipe_name\n" +
-                                "  and r.recipe_name=i1.recipe_name\n" + // lets take a little moment to remember poor Bobby tables...
-                                (StringUtils.isBlank(cuisine) ? "" : "AND UPPER(r.recipe_cuisine)='" + cuisine.toUpperCase() + "'"),
-                        (rs, rn) -> new RecipeSummary(
-                                rs.getString("recipe_name"),
-                                rs.getString("recipe_long_name"),
-                                rs.getString("recipe_description"),
-                                rs.getString("recipe_cuisine")));
+                                "  and r.recipe_name=i1.recipe_name\n" +
+                                (noCuisine ? "" : "AND UPPER(r.recipe_cuisine)=?"),
+                        RECIPE_SUMMARY_ROW_MAPPER,
+                        params);
     }
 
     @RequestMapping("/user/{username}/recipeByThreeIngredients")
@@ -110,6 +120,13 @@ public final class FeedMeControllerH2 {
             @RequestParam String ingredient3,
             @Nullable @RequestParam String cuisine,
             @Nullable @RequestParam Integer page) {
+
+        var noCuisine = StringUtils.isBlank(cuisine);
+        var params = noCuisine
+                ? new Object[] { ingredient1.toUpperCase(), ingredient2.toUpperCase(), ingredient3.toUpperCase() }
+                : new Object[] { ingredient1.toUpperCase(), ingredient2.toUpperCase(), ingredient3.toUpperCase(),
+                                 cuisine.toUpperCase() };
+
         return
                 jdbcTemplate.query(
                         "select \n" +
@@ -126,18 +143,14 @@ public final class FeedMeControllerH2 {
                                 "inner join\n" +
                                 "  feedme.recipe_ingredients i3\n" +
                                 "where\n" +
-                                "  UPPER(i1.ingredient_name) = '" + ingredient1.toUpperCase() +"'\n" + // what do you mean '; DROP FROM users' is not a valid ingredient!
-                                "  and UPPER(i2.ingredient_name)='" + ingredient2.toUpperCase() + "'\n" +
-                                "  and UPPER(i3.ingredient_name)='" + ingredient3.toUpperCase() + "'\n" +
+                                "  UPPER(i1.ingredient_name) = ?\n" +
+                                "  and UPPER(i2.ingredient_name)=?\n" +
+                                "  and UPPER(i3.ingredient_name)=?\n" +
                                 "  and i1.recipe_name=i2.recipe_name\n" +
                                 "  and i2.recipe_name=i3.recipe_name\n" +
-                                "  and r.recipe_name=i1.recipe_name\n" + // lets take a little moment to remember poor Bobby tables...
-                                (StringUtils.isBlank(cuisine) ? "" : "AND UPPER(r.recipe_cuisine)='" + cuisine.toUpperCase() + "'"),
-                        (rs, rn) -> new RecipeSummary(
-                                rs.getString("recipe_name"),
-                                rs.getString("recipe_long_name"),
-                                rs.getString("recipe_description"),
-                                rs.getString("recipe_cuisine")));
+                                "  and r.recipe_name=i1.recipe_name\n" +
+                                (noCuisine ? "" : "AND UPPER(r.recipe_cuisine)=?"),
+                        RECIPE_SUMMARY_ROW_MAPPER);
     }
 
     @RequestMapping("/recipeByName")
@@ -153,12 +166,9 @@ public final class FeedMeControllerH2 {
                                 "from\n" +
                                 "   feedme.recipes r\n" +
                                 "where\n" +
-                                "  UPPER(r.recipe_long_name) LIKE '%" + name.toUpperCase() + "%'\n", // Nothing could ever go wrong with this...
-                        (rs, rn) -> new RecipeSummary(
-                                rs.getString("recipe_name"),
-                                rs.getString("recipe_long_name"),
-                                rs.getString("recipe_description"),
-                                rs.getString("recipe_cuisine")));
+                                "  UPPER(r.recipe_long_name) LIKE ?\n",
+                        RECIPE_SUMMARY_ROW_MAPPER,
+                        "%" + name.toUpperCase() + "%");
     }
 
     @RequestMapping("/recipeById")
@@ -174,12 +184,9 @@ public final class FeedMeControllerH2 {
                                 "from\n" +
                                 "   feedme.recipes r\n" +
                                 "where\n" +
-                                "  UPPER(r.recipe_name)='" + id.toUpperCase() + "'\n", // Guess who hasn't done their NCR security course...
-                        (rs, rn) -> new RecipeSummary(
-                                rs.getString("recipe_name"),
-                                rs.getString("recipe_long_name"),
-                                rs.getString("recipe_description"),
-                                rs.getString("recipe_cuisine")));
+                                "  UPPER(r.recipe_name)=?\n",
+                        RECIPE_SUMMARY_ROW_MAPPER,
+                        id.toUpperCase());
 
         if (summary.isEmpty()) {
             return null;
@@ -197,12 +204,13 @@ public final class FeedMeControllerH2 {
                                 "from\n" +
                                 "  feedme.recipe_ingredients i\n" +
                                 "where\n" +
-                                "  i.recipe_name = '" + summary.get(0).getId() + "'",
+                                "  i.recipe_name = ?",
                         (rs, rn) -> new Ingredient(
                                 rs.getString("ingredient_name"),
                                 rs.getString("ingredient_description"),
                                 rs.getDouble("ingredient_quantity"),
-                                Ingredient.Unit.valueOf(rs.getString("ingredient_quantity_unit"))));
+                                Ingredient.Unit.valueOfSoft(rs.getString("ingredient_quantity_unit"))),
+                        summary.get(0).getId());
 
         var steps =
                 jdbcTemplate.query(
@@ -213,13 +221,14 @@ public final class FeedMeControllerH2 {
                                 "from\n" +
                                 "  feedme.recipe_steps s\n" +
                                 "where\n" +
-                                "  s.recipe_name = '" + summary.get(0).getId() + "'\n" +
+                                "  s.recipe_name = ?\n" +
                                 "order by\n" +
                                 "  s.step_id",
                         (rs, rn) -> new RecipeStep(
                                 rs.getInt("step_id"),
                                 rs.getInt("step_time_minutes"),
-                                rs.getString("step_description")));
+                                rs.getString("step_description")),
+                        summary.get(0).getId());
 
         return new Recipe(summary.get(0), ingredients, steps);
     }
@@ -234,8 +243,9 @@ public final class FeedMeControllerH2 {
                                 "from\n" +
                                 "  feedme.allergies\n" +
                                 "where\n" +
-                                "  user_name='" + username + "'", // I trust you guys, we're all internet friends...
-                        String.class);
+                                "  user_name=?",
+                        String.class,
+                        username);
     }
 
     @RequestMapping(value = "/user/{username}/allergies", method = RequestMethod.POST)
@@ -258,74 +268,5 @@ public final class FeedMeControllerH2 {
         jdbcTemplate.execute("delete from feedme.allergies where user_name='" + username + "'");
         return Collections.emptyList();
     }
-
-
-
-    @RequestMapping("/db")
-    @ResponseBody
-    World db() {
-        return randomWorld();
-    }
-
-    @RequestMapping("/queries")
-    @ResponseBody
-    World[] queries(@RequestParam String queries) {
-        var worlds = new World[parseQueryCount(queries)];
-        Arrays.setAll(worlds, i -> randomWorld());
-        return worlds;
-    }
-
-    @RequestMapping("/updates")
-    @ResponseBody
-    World[] updates(@RequestParam String queries) {
-        var worlds = new World[parseQueryCount(queries)];
-        Arrays.setAll(worlds, i -> randomWorld());
-        for (var world : worlds) {
-            world.randomNumber = randomWorldNumber();
-            jdbcTemplate.update(
-                    "UPDATE world SET randomnumber = ? WHERE id = ?",
-                    world.randomNumber,
-                    world.id);
-        }
-        return worlds;
-    }
-
-    @RequestMapping("/fortunes")
-    @ModelAttribute("fortunes")
-    List<Fortune> fortunes() {
-        var fortunes =
-                jdbcTemplate.query(
-                        "SELECT * FROM fortunes",
-                        (rs, rn) -> new Fortune(rs.getInt("id"), rs.getString("message")));
-
-        fortunes.add(new Fortune(0, "Additional fortune added at request time."));
-        fortunes.sort(comparing(fortune -> fortune.message));
-        return fortunes;
-    }
-
-    private World randomWorld() {
-        return jdbcTemplate.queryForObject(
-                "SELECT * FROM world WHERE id = ?",
-                (rs, rn) -> new World(rs.getInt("id"), rs.getInt("randomnumber")),
-                randomWorldNumber());
-    }
-
-    private static int randomWorldNumber() {
-        return 1 + ThreadLocalRandom.current().nextInt(10000);
-    }
-
-    private static int parseQueryCount(String textValue) {
-        if (textValue == null) {
-            return 1;
-        }
-        int parsedValue;
-        try {
-            parsedValue = Integer.parseInt(textValue);
-        } catch (NumberFormatException e) {
-            return 1;
-        }
-        return Math.min(500, Math.max(1, parsedValue));
-    }
-
 }
 

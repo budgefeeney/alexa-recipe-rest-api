@@ -7,6 +7,7 @@ public class Ingredient {
         unit, gram, tspn, tblspn, packet, ml, liter ;
 
         public String toString(boolean isOne) {
+
             if (unit.equals(this)) {
                 return "";
             }
@@ -27,6 +28,27 @@ public class Ingredient {
                 ? result.substring(0, result.length() - 1) + " of"
                 : result + " of";
         }
+
+        /**
+         * A lax alternative to {@link Unit#valueOf(String)} which accepts some
+         * misspellings and name variants
+         */
+        public static Unit valueOfSoft(String name) {
+            if (name == null || name.trim().equalsIgnoreCase("null")) {
+                return null;
+            }
+
+            switch (name.toLowerCase()) {
+                case "grams": return Unit.gram;
+                case "units": return Unit.unit;
+                case "packet": return Unit.packet;
+                case "packets": return Unit.packet;
+                case "tbsp" : return Unit.tblspn;
+                case "tsp" : return Unit.tspn;
+                default:
+                    return valueOf(name);
+            }
+        }
     }
 
     private final String id;
@@ -37,14 +59,24 @@ public class Ingredient {
 
     public Ingredient(String id, String description, double quantity, Unit quantityUnit) {
         this.id = id;
-        this.description = description;
+
         this.quantity = quantity;
         this.quantityUnit = quantityUnit;
 
-        if (quantity > 0.999 && quantity < 1.001) {
+        if (quantityUnit == null) {
+            this.quantityText = "Some";
+            this.description = description;
+        } else if (quantity > 0.999 && quantity < 1.001) {
             this.quantityText = "one " + quantityUnit.toString(true);
+            this.description = description
+                    .replaceAll(" tsp "," tea-spoon ")
+                    .replaceAll(" tbsp ", " table-spoon ");
         } else {
-            this.quantityText = quantity + " " + quantityUnit.toString(false);
+            this.quantityText = String.valueOf(quantity).replaceAll("\\.0","") + " " + quantityUnit.toString(false);
+            this.description =
+                    description
+                            .replaceAll(" tsp "," tea-spoons ")
+                            .replaceAll(" tbsp ", " table-spoons ");
         }
     }
 
