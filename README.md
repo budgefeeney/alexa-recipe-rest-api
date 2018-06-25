@@ -2,6 +2,10 @@ Recipe REST Service
 =====================
 An API with the ability to search for recipes by name, ID, ingredient or cuisin.
 
+Works with an embedded H2 database.
+
+Partially works with a Neo4j database, however you need to comment/uncomment code and re-compile.
+
 Build & Run Steps
 =====================
 
